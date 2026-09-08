@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人作品集 Portfolio | 大學作品展示</title>
+    
+    <style>
+        /* ================= 1. 基礎與變數設定 ================= */
+        :root {
+            --primary-color: #2b2b2b;
+            --accent-color: #6c5ce7;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --text-muted: #777777;
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ================= 2. 導覽列 ================= */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        nav {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+            transition: var(--transition);
+        }
+
+        /* ================= 3. Hero 個人主頁頭部 ================= */
+        .hero {
+            max-width: 1100px;
+            margin: 120px auto 60px;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background-color: var(--accent-color);
+            color: #fff;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+        }
+
+        /* ================= 4. 專案篩選與列表 ================= */
+        .portfolio-section {
+            max-width: 1100px;
+            margin: 0 auto 80px;
+            padding: 0 2rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            background-color: #e9ecef;
+            color: var(--text-color);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .project-img {
+            width: 100%;
+            height: 200px;
+            background-color: #ddd;
+            object-fit: cover;
+        }
+
+        .project-info {
+            padding: 1.5rem;
+        }
+
+        .project-tag {
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .project-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ================= 5. Modal 彈出視窗 ================= */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            max-width: 650px;
+            width: 100%;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .modal-title {
+            margin-bottom: 1rem;
+        }
+
+        .modal-body p {
+            margin-bottom: 1rem;
+            color: #555;
+        }
+
+        /* ================= 6. 頁尾聯絡資訊 ================= */
+        footer {
+            background-color: #fff;
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-content h2 {
+            margin-bottom: 1rem;
+        }
+
+        .social-links {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .social-links a {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .social-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* 響應式調整 */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .nav-links { display: none; } /* 可依需求擴充漢堡選單 */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 導覽列 -->
+    <header>
+        <nav>
+            <div class="logo">MY PORTFOLIO.</div>
+            <ul class="nav-links">
+                <li><a href="#about">關於我</a></li>
+                <li><a href="#projects">專案歷程</a></li>
+                <li><a href="#contact">聯絡我</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- 個人主頁 Hero Section -->
+    <section class="hero" id="about">
+        <h1>探索故事與創意的交集</h1>
+        <p>你好！我是 [你的名字]。這裡記錄了我大學四年在文本敘事、視覺設計與專案製作上的成長軌跡。</p>
+        <a href="#projects" class="cta-btn">查看作品歷程</a>
+    </section>
+
+    <!-- 專案展示區 -->
+    <section class="portfolio-section" id="projects">
+        <!-- 篩選標籤 -->
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">全部作品</button>
+            <button class="filter-btn" data-filter="year1">大一 / 基礎奠基</button>
+            <button class="filter-btn" data-filter="year2">大二 / 跨域探索</button>
+            <button class="filter-btn" data-filter="year3">大三 / 專題實作</button>
+            <button class="filter-btn" data-filter="year4">大四 / 畢業成果</button>
+        </div>
+
+        <!-- 卡片列表 -->
+        <div class="projects-grid">
+            
+            <!-- 專案卡片 1 -->
+            <div class="project-card" data-category="year3" 
+                 data-title="經典文本改編與短影音專案" 
+                 data-detail="在大三『專題閱讀與研究』課程中，負責劇本編寫、視覺設計與剪輯。將傳統文本進行創新轉譯，製作成現代風格的短影音內容，獲得優良專案肯定。">
+                <img src="https://via.placeholder.com/400x250/6c5ce7/ffffff?text=Video+Project" alt="專案圖片" class="project-img">
+                <div class="project-info">
+                    <span class="project-tag">大三專題</span>
+                    <h3 class="project-title">經典文本改編與短影音專案</h3>
+                    <p class="project-desc">主導劇本編寫與視覺剪輯，將經典文本轉化為符合當代影音趨勢的視覺創作。</p>
+                </div>
+            </div>
+
+            <!-- 專案卡片 2 -->
+            <div class="project-card" data-category="year2" 
+                 data-title="視覺美學與品牌概念設計" 
+                 data-detail="探索視覺構圖與個人美學風格，結合傳統韻味與現代俐落感，完成一套完整的視覺提案與主題攝影企劃。">
+                <img src="https://via.placeholder.com/400x250/a29bfe/ffffff?text=Design+Project" alt="專案圖片" class="project-img">
+                <div class="project-info">
+                    <span class="project-tag">大二作品</span>
+                    <h3 class="project-title">視覺美學與品牌概念設計</h3>
+                    <p class="project-desc">結合美學風格分析與攝影企劃，打造具個人特色與故事感的視覺設計作品。</p>
+                </div>
+            </div>
+
+            <!-- 專案卡片 3 -->
+            <div class="project-card" data-category="year1" 
+                 data-title="文學創作與經典文本解析" 
+                 data-detail="大一期間的文字創作與文本深度剖析，展現對故事結構與情節脈絡的敏銳感知。">
+                <img src="https://via.placeholder.com/400x250/74b9ff/ffffff?text=Writing+Project" alt="專案圖片" class="project-img">
+                <div class="project-info">
+                    <span class="project-tag">大一作品</span>
+                    <h3 class="project-title">文學創作與經典文本解析</h3>
+                    <p class="project-desc">扎實的敘事文字功底，專注於角色塑造與情感氛圍的營造。</p>
+                </div>
+            </div>
+
+            <!-- 專案卡片 4 -->
+            <div class="project-card" data-category="year4" 
+                 data-title="畢業專案：個人 IP 網站與數位展演" 
+                 data-detail="整合大學四年學習成果，結合前端程式開發與內容企劃，建構專屬個人 IP 的數位作品集網站。">
+                <img src="https://via.placeholder.com/400x250/00b894/ffffff?text=Graduation+Project" alt="專案圖片" class="project-img">
+                <div class="project-info">
+                    <span class="project-tag">大四畢業成果</span>
+                    <h3 class="project-title">畢業專案：個人 IP 網站與數位展演</h3>
+                    <p class="project-desc">融合前端網頁技術與品牌策展思考，全方位展示大學四年的創作總結。</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Modal 專案詳細視窗 -->
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title" id="modalTitle">專案名稱</h2>
+            <div class="modal-body">
+                <p id="modalDetail">專案詳細說明載入中...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 頁尾聯絡方式 -->
+    <footer id="contact">
+        <div class="footer-content">
+            <h2>聯絡方式 / Contact</h2>
+            <p>歡迎與我交流創作、專案合作或任何想法！</p>
+            <div class="social-links">
+                <a href="mailto:your-email@example.com">Email</a>
+                <a href="#" target="_blank">Instagram</a>
+                <a href="#" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 邏輯 -->
+    <script>
+        // 1. 專案類別篩選功能 (Filtering)
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const projectCards = document.querySelectorAll('.project-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 切換按鈕 active 狀態
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const filterValue = btn.getAttribute('data-filter');
+
+                // 顯示/隱藏對應卡片
+                projectCards.forEach(card => {
+                    if (filterValue === 'all' || card.getAttribute('data-category') === filterValue) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // 2. 專案 Modal 彈出視窗功能
+        const modal = document.getElementById('projectModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDetail = document.getElementById('modalDetail');
+        const closeModal = document.querySelector('.close-modal');
+
+        projectCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const title = card.getAttribute('data-title');
+                const detail = card.getAttribute('data-detail');
+
+                modalTitle.textContent = title;
+                modalDetail.textContent = detail;
+                modal.style.display = 'flex';
+            });
+        });
+
+        // 關閉 Modal (點擊 X 或點擊背景)
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
