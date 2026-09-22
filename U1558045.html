@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互動式貓咪藝廊 - U1558045</title>
+
+    <!-- Tailwind CSS for modern layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style id="main-styles">
+        /* =========================================================
+           U1558045.css - 獨立 CSS 樣式檔內容
+           ========================================================= */
+
+        :root {
+            --bg-dark: #0f172a;
+            --accent-warm: #f59e0b;
+            --accent-pink: #ec4899;
+            --accent-purple: #8b5cf6;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.12);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-dark);
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(139, 92, 246, 0.1) 0px, transparent 50%);
+        }
+
+        /* 3D Dynamic Card Container */
+        .card-container {
+            perspective: 1000px;
+        }
+
+        .cat-card {
+            transform-style: preserve-3d;
+            transition: transform 0.18s ease-out, box-shadow 0.3s ease, border-color 0.3s ease;
+            will-change: transform;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+        }
+
+        .cat-card:hover {
+            box-shadow: 0 25px 45px -12px rgba(236, 72, 153, 0.3);
+            border-color: rgba(236, 72, 153, 0.5);
+        }
+
+        /* Card Elements Depth Layering */
+        .card-image-wrapper {
+            transform: translateZ(25px);
+            transition: transform 0.3s ease;
+        }
+
+        .card-content {
+            transform: translateZ(35px);
+        }
+
+        .play-badge {
+            transform: translateZ(50px) scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            opacity: 0.8;
+        }
+
+        .cat-card:hover .play-badge {
+            transform: translateZ(60px) scale(1.1);
+            opacity: 1;
+        }
+
+        /* Dynamic Glare Effect */
+        .glare {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            border-radius: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            mix-blend-mode: overlay;
+            z-index: 10;
+        }
+
+        /* Custom Scrollbar for Code Block */
+        pre::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        pre::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        pre::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        /* Code Viewer Tabs */
+        .tab-btn.active {
+            border-bottom: 2px solid #ec4899;
+            color: #ec4899;
+            background: rgba(236, 72, 153, 0.1);
+        }
+    </style>
+</head>
+<body class="relative flex flex-col justify-between min-h-screen">
+
+    <!-- Header Section -->
+    <header class="relative z-10 pt-12 pb-6 text-center px-4">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/80 border border-slate-700/60 mb-4 backdrop-blur-md shadow-md">
+            <i class="fa-solid fa-cat text-pink-400 text-sm"></i>
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">學生作業 U1558045</span>
+        </div>
+        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-pink-400 to-purple-400">
+                互動式貓咪藝廊
+            </span>
+        </h1>
+        <p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+            滑鼠游標移動至貓咪卡片上方體驗 3D 傾斜與視覺光影效果；點擊卡片即可前往該貓咪的 YouTube 經典影片！
+        </p>
+    </header>
+
+    <!-- Gallery Grid Section (5 Cards) -->
+    <main class="relative z-10 max-w-7xl mx-auto px-6 py-6 flex-grow w-full">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center items-stretch" id="gallery">
+            
+            <!-- Card 1: Grumpy Cat -->
+            <a href="https://www.youtube.com/watch?v=INscMGmhmX4" target="_blank" rel="noopener noreferrer" class="card-container block group">
+                <div class="cat-card relative rounded-3xl p-5 h-full flex flex-col justify-between overflow-hidden cursor-pointer">
+                    <div class="glare"></div>
+                    <div class="card-image-wrapper relative overflow-hidden rounded-2xl mb-4 bg-slate-900 aspect-video">
+                        <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800&auto=format&fit=crop" 
+                             alt="Grumpy Cat" 
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="play-badge absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]">
+                            <div class="w-14 h-14 rounded-full bg-pink-500/90 text-white flex items-center justify-center shadow-lg group-hover:bg-pink-600 transition-colors">
+                                <i class="fa-solid fa-play text-xl ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content px-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xl font-bold text-white group-hover:text-pink-400 transition-colors">不爽貓 (Grumpy Cat)</h3>
+                            <span class="text-xs bg-pink-500/20 text-pink-300 border border-pink-500/30 px-2.5 py-1 rounded-full">經典迷因</span>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">表情永遠在不高興的始祖級網路明星貓咪。</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 2: Maru Cat -->
+            <a href="https://www.youtube.com/watch?v=z_AbfPXTKms" target="_blank" rel="noopener noreferrer" class="card-container block group">
+                <div class="cat-card relative rounded-3xl p-5 h-full flex flex-col justify-between overflow-hidden cursor-pointer">
+                    <div class="glare"></div>
+                    <div class="card-image-wrapper relative overflow-hidden rounded-2xl mb-4 bg-slate-900 aspect-video">
+                        <img src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?q=80&w=800&auto=format&fit=crop" 
+                             alt="Maru Cat" 
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="play-badge absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]">
+                            <div class="w-14 h-14 rounded-full bg-pink-500/90 text-white flex items-center justify-center shadow-lg group-hover:bg-pink-600 transition-colors">
+                                <i class="fa-solid fa-play text-xl ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content px-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xl font-bold text-white group-hover:text-pink-400 transition-colors">鑽紙箱貓 (Maru)</h3>
+                            <span class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-full">吉尼斯世界紀錄</span>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">擁有極高人氣、最喜歡衝撞進各種小紙箱的日本貓咪。</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 3: Keyboard Cat -->
+            <a href="https://www.youtube.com/watch?v=J---aiyznGQ" target="_blank" rel="noopener noreferrer" class="card-container block group">
+                <div class="cat-card relative rounded-3xl p-5 h-full flex flex-col justify-between overflow-hidden cursor-pointer">
+                    <div class="glare"></div>
+                    <div class="card-image-wrapper relative overflow-hidden rounded-2xl mb-4 bg-slate-900 aspect-video">
+                        <img src="https://images.unsplash.com/photo-1533738363-b7f9aef128ce?q=80&w=800&auto=format&fit=crop" 
+                             alt="Keyboard Cat" 
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="play-badge absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]">
+                            <div class="w-14 h-14 rounded-full bg-pink-500/90 text-white flex items-center justify-center shadow-lg group-hover:bg-pink-600 transition-colors">
+                                <i class="fa-solid fa-play text-xl ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content px-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xl font-bold text-white group-hover:text-pink-400 transition-colors">鍵盤貓 (Keyboard Cat)</h3>
+                            <span class="text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2.5 py-1 rounded-full">音樂傳奇</span>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">穿著藍色衣服流暢彈奏電子琴的經典迷因貓。</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 4: Nyan Cat -->
+            <a href="https://www.youtube.com/watch?v=QH2-TGUlwu4" target="_blank" rel="noopener noreferrer" class="card-container block group">
+                <div class="cat-card relative rounded-3xl p-5 h-full flex flex-col justify-between overflow-hidden cursor-pointer">
+                    <div class="glare"></div>
+                    <div class="card-image-wrapper relative overflow-hidden rounded-2xl mb-4 bg-slate-900 aspect-video">
+                        <img src="https://images.unsplash.com/photo-1519052537078-e6302a4968d4?q=80&w=800&auto=format&fit=crop" 
+                             alt="Nyan Cat Vibe" 
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="play-badge absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]">
+                            <div class="w-14 h-14 rounded-full bg-pink-500/90 text-white flex items-center justify-center shadow-lg group-hover:bg-pink-600 transition-colors">
+                                <i class="fa-solid fa-play text-xl ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content px-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xl font-bold text-white group-hover:text-pink-400 transition-colors">彩虹貓 (Nyan Cat)</h3>
+                            <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2.5 py-1 rounded-full">洗腦旋律</span>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">拖著彩虹尾巴在宇宙飛行的洗腦動態貓咪。</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 5: Surprised Kitty -->
+            <a href="https://www.youtube.com/watch?v=0Bmhjf0rKe8" target="_blank" rel="noopener noreferrer" class="card-container block group sm:col-span-2 lg:col-span-1">
+                <div class="cat-card relative rounded-3xl p-5 h-full flex flex-col justify-between overflow-hidden cursor-pointer">
+                    <div class="glare"></div>
+                    <div class="card-image-wrapper relative overflow-hidden rounded-2xl mb-4 bg-slate-900 aspect-video">
+                        <img src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?q=80&w=800&auto=format&fit=crop" 
+                             alt="Surprised Kitty" 
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="play-badge absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]">
+                            <div class="w-14 h-14 rounded-full bg-pink-500/90 text-white flex items-center justify-center shadow-lg group-hover:bg-pink-600 transition-colors">
+                                <i class="fa-solid fa-play text-xl ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content px-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xl font-bold text-white group-hover:text-pink-400 transition-colors">驚訝小貓 (Surprised Kitty)</h3>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-full">超萌日常</span>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">被搔癢時會高舉雙手、萌翻數百萬人的幼貓。</p>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+    </main>
+
+    <!-- Code Separator Display Section (Allows user to inspect & copy split source code) -->
+    <section class="max-w-7xl mx-auto px-6 mt-12 mb-8 relative z-10 w-full">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-md">
+            
+            <!-- Section Header -->
+            <div class="flex flex-wrap items-center justify-between px-6 py-4 bg-slate-950/80 border-b border-slate-800 gap-4">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-code text-pink-400"></i>
+                    <h2 class="text-base font-bold text-slate-200">檔案分離程式碼檢視器 (Separate Code Viewer)</h2>
+                </div>
+                <!-- Tabs -->
+                <div class="flex items-center bg-slate-900 rounded-lg p-1 border border-slate-800 text-xs font-semibold">
+                    <button id="tab-html" onclick="switchTab('html')" class="tab-btn active px-4 py-1.5 rounded-md transition-colors text-slate-300">
+                        <i class="fa-brands fa-html5 text-orange-400 mr-1.5"></i>U1558045.html
+                    </button>
+                    <button id="tab-css" onclick="switchTab('css')" class="tab-btn px-4 py-1.5 rounded-md transition-colors text-slate-300">
+                        <i class="fa-brands fa-css3-alt text-blue-400 mr-1.5"></i>U1558045.css
+                    </button>
+                </div>
+            </div>
+
+            <!-- Code Content Viewport -->
+            <div class="relative p-4 bg-slate-950/90">
+                <button onclick="copyCode()" class="absolute top-6 right-6 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700 transition-all flex items-center gap-1.5 z-20">
+                    <i class="fa-regular fa-copy" id="copy-icon"></i>
+                    <span id="copy-btn-text">複製該檔程式碼</span>
+                </button>
+
+                <!-- HTML Code Display -->
+                <pre id="code-html" class="text-xs font-mono text-slate-300 overflow-x-auto p-4 rounded-xl bg-slate-900/80 leading-relaxed border border-slate-800/80 max-h-96"><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="zh-Hant"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;互動式貓咪藝廊 - U1558045&lt;/title&gt;
+    
+    &lt;!-- 引進外部 CSS 檔案 --&gt;
+    &lt;link rel="stylesheet" href="U1558045.css"&gt;
+    
+    &lt;!-- Tailwind CSS & FontAwesome --&gt;
+    &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
+    &lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"&gt;
+&lt;/head&gt;
+&lt;body class="relative flex flex-col justify-between min-h-screen"&gt;
+
+    &lt;header class="relative z-10 pt-12 pb-6 text-center px-4"&gt;
+        &lt;div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/80 border border-slate-700/60 mb-4 backdrop-blur-md shadow-md"&gt;
+            &lt;i class="fa-solid fa-cat text-pink-400 text-sm"&gt;&lt;/i&gt;
+            &lt;span class="text-xs font-semibold uppercase tracking-wider text-slate-300"&gt;學號 U1558045&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4"&gt;
+            &lt;span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-pink-400 to-purple-400"&gt;
+                互動式貓咪藝廊
+            &lt;/span&gt;
+        &lt;/h1&gt;
+        &lt;p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed"&gt;
+            滑鼠游標移動至貓咪卡片上方體驗 3D 傾斜與視覺光影效果；點擊卡片即可前往該貓咪的 YouTube 經典影片！
+        &lt;/p&gt;
+    &lt;/header&gt;
+
+    &lt;main class="relative z-10 max-w-7xl mx-auto px-6 py-6 flex-grow w-full"&gt;
+        &lt;div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center items-stretch"&gt;
+            
+            &lt;!-- 1. Grumpy Cat --&gt;
+            &lt;a href="https://www.youtube.com/watch?v=INscMGmhmX4" target="_blank" rel="noopener noreferrer" class="card-container block group"&gt;
+                &lt;div class="cat-card relative rounded-3xl p-5 h-full flex flex-col justify-between overflow-hidden cursor-pointer"&gt;
+                    &lt;div class="glare"&gt;&lt;/div&gt;
+                    &lt;div class="card-image-wrapper relative overflow-hidden rounded-2xl mb-4 bg-slate-900 aspect-video"&gt;
+                        &lt;img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&amp;w=800&amp;auto=format&amp;fit=crop" alt="Grumpy Cat" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"&gt;
+                        &lt;div class="play-badge absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]"&gt;
+                            &lt;div class="w-14 h-14 rounded-full bg-pink-500/90 text-white flex items-center justify-center shadow-lg group-hover:bg-pink-600 transition-colors"&gt;
+                                &lt;i class="fa-solid fa-play text-xl ml-1"&gt;&lt;/i&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="card-content px-1"&gt;
+                        &lt;div class="flex items-center justify-between mb-2"&gt;
+                            &lt;h3 class="text-xl font-bold text-white group-hover:text-pink-400 transition-colors"&gt;不爽貓 (Grumpy Cat)&lt;/h3&gt;
+                            &lt;span class="text-xs bg-pink-500/20 text-pink-300 border border-pink-500/30 px-2.5 py-1 rounded-full"&gt;經典迷因&lt;/span&gt;
+                        &lt;/div&gt;
+                        &lt;p class="text-slate-400 text-sm leading-relaxed"&gt;表情永遠在不高興的始祖級網路明星貓咪。&lt;/p&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/a&gt;
+
+            &lt;!-- 2. Maru Cat --&gt;
+            &lt;a href="https://www.youtube.com/watch?v=z_AbfPXTKms" target="_blank" rel="noopener noreferrer" class="card-container block group"&gt;
+                &lt;div class="cat-card relative rounded-3xl p-5 h-full flex flex-col justify-between overflow-hidden cursor-pointer"&gt;
+                    &lt;div class="glare"&gt;&lt;/div&gt;
+                    &lt;div class="card-image-wrapper relative overflow-hidden rounded-2xl mb-4 bg-slate-900 aspect-video"&gt;
+                        &lt;img src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?q=80&amp;w=800&amp;auto=format&amp;fit=crop" alt="Maru Cat" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"&gt;
+                        &lt;div class="play-badge absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]"&gt;
+                            &lt;div class="w-14 h-14 rounded-full bg-pink-500/90 text-white flex items-center justify-center shadow-lg group-hover:bg-pink-600 transition-colors"&gt;
+                                &lt;i class="fa-solid fa-play text-xl ml-1"&gt;&lt;/i&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="card-content px-1"&gt;
+                        &lt;div class="flex items-center justify-between mb-2"&gt;
+                            &lt;h3 class="text-xl font-bold text-white group-hover:text-pink-400 transition-colors"&gt;鑽紙箱貓 (Maru)&lt;/h3&gt;
+                            &lt;span class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-full"&gt;吉尼斯紀錄&lt;/span&gt;
+                        &lt;/div&gt;
+                        &lt;p class="text-slate-400 text-sm leading-relaxed"&gt;擁有極高人氣、最喜歡衝撞進各種小紙箱的日本貓咪。&lt;/p&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/a&gt;
+
+            &lt;!-- 3. Keyboard Cat --&gt;
+            &lt;a href="https://www.youtube.com/watch?v=J---aiyznGQ" target="_blank" rel="noopener noreferrer" class="card-container block group"&gt;
+                &lt;div class="cat-card relative rounded-3xl p-5 h-full flex flex-col justify-between overflow-hidden cursor-pointer"&gt;
+                    &lt;div class="glare"&gt;&lt;/div&gt;
+                    &lt;div class="card-image-wrapper relative overflow-hidden rounded-2xl mb-4 bg-slate-900 aspect-video"&gt;
+                        &lt;img src="https://images.unsplash.com/photo-1533738363-b7f9aef128ce?q=80&amp;w=800&amp;auto=format&amp;fit=crop" alt="Keyboard Cat" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"&gt;
+                        &lt;div class="play-badge absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]"&gt;
+                            &lt;div class="w-14 h-14 rounded-full bg-pink-500/90 text-white flex items-center justify-center shadow-lg group-hover:bg-pink-600 transition-colors"&gt;
+                                &lt;i class="fa-solid fa-play text-xl ml-1"&gt;&lt;/i&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="card-content px-1"&gt;
+                        &lt;div class="flex items-center justify-between mb-2"&gt;
+                            &lt;h3 class="text-xl font-bold text-white group-hover:text-pink-400 transition-colors"&gt;鍵盤貓 (Keyboard Cat)&lt;/h3&gt;
+                            &lt;span class="text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2.5 py-1 rounded-full"&gt;音樂傳奇&lt;/span&gt;
+                        &lt;/div&gt;
+                        &lt;p class="text-slate-400 text-sm leading-relaxed"&gt;穿著藍色衣服流暢彈奏電子琴的經典迷因貓。&lt;/p&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/a&gt;
+
+            &lt;!-- 4. Nyan Cat --&gt;
+            &lt;a href="https://www.youtube.com/watch?v=QH2-TGUlwu4" target="_blank" rel="noopener noreferrer" class="card-container block group"&gt;
+                &lt;div class="cat-card relative rounded-3xl p-5 h-full flex flex-col justify-between overflow-hidden cursor-pointer"&gt;
+                    &lt;div class="glare"&gt;&lt;/div&gt;
+                    &lt;div class="card-image-wrapper relative overflow-hidden rounded-2xl mb-4 bg-slate-900 aspect-video"&gt;
+                        &lt;img src="https://images.unsplash.com/photo-1519052537078-e6302a4968d4?q=80&amp;w=800&amp;auto=format&amp;fit=crop" alt="Nyan Cat" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"&gt;
+                        &lt;div class="play-badge absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]"&gt;
+                            &lt;div class="w-14 h-14 rounded-full bg-pink-500/90 text-white flex items-center justify-center shadow-lg group-hover:bg-pink-600 transition-colors"&gt;
+                                &lt;i class="fa-solid fa-play text-xl ml-1"&gt;&lt;/i&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="card-content px-1"&gt;
+                        &lt;div class="flex items-center justify-between mb-2"&gt;
+                            &lt;h3 class="text-xl font-bold text-white group-hover:text-pink-400 transition-colors"&gt;彩虹貓 (Nyan Cat)&lt;/h3&gt;
+                            &lt;span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2.5 py-1 rounded-full"&gt;洗腦旋律&lt;/span&gt;
+                        &lt;/div&gt;
+                        &lt;p class="text-slate-400 text-sm leading-relaxed"&gt;拖著彩虹尾巴在宇宙飛行的洗腦動態貓咪。&lt;/p&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/a&gt;
+
+            &lt;!-- 5. Surprised Kitty --&gt;
+            &lt;a href="https://www.youtube.com/watch?v=0Bmhjf0rKe8" target="_blank" rel="noopener noreferrer" class="card-container block group sm:col-span-2 lg:col-span-1"&gt;
+                &lt;div class="cat-card relative rounded-3xl p-5 h-full flex flex-col justify-between overflow-hidden cursor-pointer"&gt;
+                    &lt;div class="glare"&gt;&lt;/div&gt;
+                    &lt;div class="card-image-wrapper relative overflow-hidden rounded-2xl mb-4 bg-slate-900 aspect-video"&gt;
+                        &lt;img src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?q=80&amp;w=800&amp;auto=format&amp;fit=crop" alt="Surprised Kitty" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"&gt;
+                        &lt;div class="play-badge absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]"&gt;
+                            &lt;div class="w-14 h-14 rounded-full bg-pink-500/90 text-white flex items-center justify-center shadow-lg group-hover:bg-pink-600 transition-colors"&gt;
+                                &lt;i class="fa-solid fa-play text-xl ml-1"&gt;&lt;/i&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="card-content px-1"&gt;
+                        &lt;div class="flex items-center justify-between mb-2"&gt;
+                            &lt;h3 class="text-xl font-bold text-white group-hover:text-pink-400 transition-colors"&gt;驚訝小貓 (Surprised Kitty)&lt;/h3&gt;
+                            &lt;span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-full"&gt;超萌日常&lt;/span&gt;
+                        &lt;/div&gt;
+                        &lt;p class="text-slate-400 text-sm leading-relaxed"&gt;被搔癢時會高舉雙手、萌翻數百萬人的幼貓。&lt;/p&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/a&gt;
+
+        &lt;/div&gt;
+    &lt;/main&gt;
+
+    &lt;footer class="relative z-10 py-6 text-center text-xs text-slate-500 border-t border-slate-800/80 mt-12"&gt;
+        &lt;p&gt;© U1558045 Web Design Interactive Project.&lt;/p&gt;
+    &lt;/footer&gt;
+
+    &lt;script&gt;
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.cat-card');
+            cards.forEach(card => {
+                const glare = card.querySelector('.glare');
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = -((y - centerY) / centerY) * 14;
+                    const rotateY = ((x - centerX) / centerX) * 14;
+
+                    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                    if (glare) {
+                        glare.style.opacity = '1';
+                        glare.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 75%)`;
+                    }
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+                    if (glare) glare.style.opacity = '0';
+                });
+            });
+        });
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+                <!-- CSS Code Display -->
+                <pre id="code-css" class="hidden text-xs font-mono text-slate-300 overflow-x-auto p-4 rounded-xl bg-slate-900/80 leading-relaxed border border-slate-800/80 max-h-96"><code>/* =========================================================
+   U1558045.css - 獨立 CSS 樣式檔
+   ========================================================= */
+
+:root {
+    --bg-dark: #0f172a;
+    --accent-warm: #f59e0b;
+    --accent-pink: #ec4899;
+    --accent-purple: #8b5cf6;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --card-border: rgba(255, 255, 255, 0.12);
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+    background-color: var(--bg-dark);
+    color: #f8fafc;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(139, 92, 246, 0.1) 0px, transparent 50%);
+}
+
+/* 3D Dynamic Card Container */
+.card-container {
+    perspective: 1000px;
+}
+
+.cat-card {
+    transform-style: preserve-3d;
+    transition: transform 0.18s ease-out, box-shadow 0.3s ease, border-color 0.3s ease;
+    will-change: transform;
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--card-border);
+}
+
+.cat-card:hover {
+    box-shadow: 0 25px 45px -12px rgba(236, 72, 153, 0.3);
+    border-color: rgba(236, 72, 153, 0.5);
+}
+
+/* Card Elements Depth Layering */
+.card-image-wrapper {
+    transform: translateZ(25px);
+    transition: transform 0.3s ease;
+}
+
+.card-content {
+    transform: translateZ(35px);
+}
+
+.play-badge {
+    transform: translateZ(50px) scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    opacity: 0.8;
+}
+
+.cat-card:hover .play-badge {
+    transform: translateZ(60px) scale(1.1);
+    opacity: 1;
+}
+
+/* Dynamic Glare Effect */
+.glare {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    mix-blend-mode: overlay;
+    z-index: 10;
+}</code></pre>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative z-10 py-6 text-center text-xs text-slate-500 border-t border-slate-800/80 mt-6">
+        <p>© U1558045 Web Design Interactive Project. Modern CSS & Interactive Effects.</p>
+    </footer>
+
+    <script>
+        // 3D Parallax Tilt Effect for Cat Cards
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.cat-card');
+
+            cards.forEach(card => {
+                const glare = card.querySelector('.glare');
+
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+
+                    // Calculate rotation angles
+                    const rotateX = -((y - centerY) / centerY) * 14;
+                    const rotateY = ((x - centerX) / centerX) * 14;
+
+                    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+
+                    if (glare) {
+                        glare.style.opacity = '1';
+                        glare.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 75%)`;
+                    }
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+                    if (glare) {
+                        glare.style.opacity = '0';
+                    }
+                });
+            });
+        });
+
+        // Code Tab Switch Logic
+        let activeTab = 'html';
+
+        function switchTab(type) {
+            activeTab = type;
+            const htmlTab = document.getElementById('tab-html');
+            const cssTab = document.getElementById('tab-css');
+            const htmlCode = document.getElementById('code-html');
+            const cssCode = document.getElementById('code-css');
+
+            if (type === 'html') {
+                htmlTab.classList.add('active');
+                cssTab.classList.remove('active');
+                htmlCode.classList.remove('hidden');
+                cssCode.classList.add('hidden');
+            } else {
+                cssTab.classList.add('active');
+                htmlTab.classList.remove('active');
+                cssCode.classList.remove('hidden');
+                htmlCode.classList.add('hidden');
+            }
+        }
+
+        // Copy Code Function
+        function copyCode() {
+            const targetCodeElement = activeTab === 'html' ? document.getElementById('code-html') : document.getElementById('code-css');
+            const textToCopy = targetCodeElement.textContent;
+
+            // Using execCommand for iframe compatibility
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const icon = document.getElementById('copy-icon');
+            const btnText = document.getElementById('copy-btn-text');
+
+            icon.className = 'fa-solid fa-check text-green-400';
+            btnText.innerText = '已複製內容！';
+
+            setTimeout(() => {
+                icon.className = 'fa-regular fa-copy';
+                btnText.innerText = '複製該檔程式碼';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
