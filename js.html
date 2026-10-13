@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>喵喵樂園 Meow Paradise | 超萌全螢幕貓咪互動館</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        meow: {
+                            pink: '#FFD6E8',
+                            hotpink: '#FF85B3',
+                            deepPink: '#FF5388',
+                            cream: '#FFF9F2',
+                            yellow: '#FFE8A3',
+                            purple: '#E8D5FF',
+                            mint: '#D0F8E8',
+                            cardBg: '#FFFFFF',
+                            text: '#4A3E3D',
+                            textLight: '#8C7A78'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Fredoka"', '"Zen Maru Gothic"', '"Noto Sans TC"', 'sans-serif'],
+                        cute: ['"Zen Maru Gothic"', 'sans-serif']
+                    },
+                    borderRadius: {
+                        '4xl': '2rem',
+                        '5xl': '2.5rem',
+                    },
+                    keyframes: {
+                        bounceSoft: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-4deg)' },
+                            '50%': { transform: 'rotate(4deg)' }
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { filter: 'drop-shadow(0 0 15px rgba(255, 133, 179, 0.6))' },
+                            '50%': { filter: 'drop-shadow(0 0 35px rgba(255, 83, 136, 0.9))' }
+                        },
+                        tailWag: {
+                            '0%, 100%': { transform: 'rotate(-15deg)' },
+                            '50%': { transform: 'rotate(25deg)' }
+                        }
+                    },
+                    animation: {
+                        bounceSoft: 'bounceSoft 2s infinite ease-in-out',
+                        wiggle: 'wiggle 1.2s infinite ease-in-out',
+                        pulseGlow: 'pulseGlow 2.5s infinite ease-in-out',
+                        tailWag: 'tailWag 1.8s infinite ease-in-out'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
+            background-color: #FFF9F2;
+            color: #4A3E3D;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        #cursorCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .cute-glass {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 2px solid rgba(255, 214, 232, 0.8);
+        }
+
+        .cat-ears-container {
+            position: relative;
+        }
+        .cat-ears-container::before, .cat-ears-container::after {
+            content: '';
+            position: absolute;
+            top: -12px;
+            width: 30px;
+            height: 30px;
+            background-color: #FF85B3;
+            border-radius: 6px 20px 0 0;
+            z-index: 10;
+            transition: transform 0.3s ease;
+        }
+        .cat-ears-container::before {
+            left: 24px;
+            transform: rotate(-15deg);
+        }
+        .cat-ears-container::after {
+            right: 24px;
+            transform: rotate(15deg);
+            border-radius: 20px 6px 0 0;
+        }
+        .cat-ears-container:hover::before {
+            transform: rotate(-25deg) translateY(-3px);
+        }
+        .cat-ears-container:hover::after {
+            transform: rotate(25deg) translateY(-3px);
+        }
+
+        /* Animated Add to Cart Button Style */
+        .btn-add-cart {
+            background: linear-gradient(135deg, #FF85B3 0%, #FF5388 100%);
+            box-shadow: 0 6px 20px rgba(255, 83, 136, 0.35);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-add-cart:hover {
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 10px 25px rgba(255, 83, 136, 0.55);
+        }
+        .btn-add-cart:active {
+            transform: translateY(1px) scale(0.96);
+        }
+
+        /* Particle Burst Element */
+        .particle-emoji {
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            font-size: 1.8rem;
+            animation: particleFade 0.85s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+
+        @keyframes particleFade {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(0.5) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--dx), var(--dy)) scale(1.6) rotate(var(--rot));
+            }
+        }
+
+        /* Fullscreen Cat Canvas Frame Glow */
+        .cat-modal-active {
+            animation: backdropGlow 2s infinite alternate ease-in-out;
+        }
+        @keyframes backdropGlow {
+            0% { background-color: rgba(255, 214, 232, 0.85); }
+            100% { background-color: rgba(255, 133, 179, 0.92); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative selection:bg-pink-300 selection:text-pink-900">
+
+    <!-- Mouse Paw Trail Canvas -->
+    <canvas id="cursorCanvas"></canvas>
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-40 cute-glass shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center space-x-3 group">
+                <div class="w-12 h-12 rounded-full bg-meow-hotpink flex items-center justify-center text-white text-2xl shadow-md group-hover:rotate-12 transition-transform">
+                    🐾
+                </div>
+                <div>
+                    <span class="text-2xl font-black tracking-wider text-meow-deepPink font-cute block leading-none">喵喵樂園</span>
+                    <span class="text-[10px] font-bold text-meow-textLight tracking-widest uppercase">MEOW PARADISE</span>
+                </div>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="hidden md:flex items-center relative w-72">
+                <input type="text" id="searchInput" placeholder="搜尋可愛貓咪 (如: 布偶, 英短)..." 
+                       class="w-full bg-white text-xs text-meow-text placeholder-pink-300 pl-10 pr-4 py-2.5 rounded-full border-2 border-meow-pink focus:outline-none focus:border-meow-hotpink shadow-inner">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-meow-hotpink text-sm"></i>
+            </div>
+
+            <!-- Action Items -->
+            <div class="flex items-center space-x-3 sm:space-x-5">
+                <button onclick="triggerFullscreenCat('🌸 樂園特別喵喵招呼！')" class="px-4 py-2 rounded-full bg-white border-2 border-pink-300 text-meow-deepPink font-bold text-xs hover:bg-pink-50 shadow-sm flex items-center space-x-1">
+                    <span class="text-sm">🐱</span>
+                    <span class="hidden sm:inline">召喚巨萌貓咪</span>
+                </button>
+
+                <button id="openCartBtn" class="relative px-4 py-2.5 rounded-full bg-meow-yellow border-2 border-amber-300 text-meow-text font-bold text-sm flex items-center space-x-2 hover:bg-amber-200 shadow-sm">
+                    <i class="fa-solid fa-basket-shopping text-meow-deepPink text-lg"></i>
+                    <span class="hidden sm:inline">購物籃</span>
+                    <span id="cartCountBadge" class="bg-meow-deepPink text-white text-xs font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Banner Section -->
+    <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+        <div class="rounded-5xl bg-gradient-to-r from-pink-200 via-purple-100 to-amber-100 p-8 sm:p-12 relative overflow-hidden border-4 border-white shadow-xl flex flex-col md:flex-row items-center justify-between">
+            <div class="z-10 max-w-lg text-center md:text-left space-y-4">
+                <div class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white/80 text-meow-deepPink text-xs font-bold border border-pink-300 shadow-sm">
+                    <span>✨ 全台唯一！點擊按鈕觸發 3D/2D 巨萌貓咪跳出</span>
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-black text-meow-text leading-tight font-cute">
+                    點擊任何商品<br/>
+                    <span class="text-meow-deepPink underline decoration-wavy decoration-amber-300">跳出全螢幕萌貓！</span> 💕
+                </h1>
+                <p class="text-xs sm:text-sm text-meow-textLight leading-relaxed">
+                    點擊「加入購物車」即可體驗震撼全螢幕貓咪！會眨眼、發出喵喵聲、眼睛跟隨滑鼠，還能餵罐頭摸摸頭！
+                </p>
+                <div class="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
+                    <button onclick="triggerFullscreenCat('🐾 搶先開箱巨萌貓咪！', '英國短毛貓 (大臉嘟嘟)')" class="btn-add-cart text-white font-black text-sm px-7 py-3.5 rounded-full shadow-lg flex items-center space-x-2">
+                        <i class="fa-solid fa-paw text-base"></i>
+                        <span>加入購物車 (召喚全螢幕萌貓)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Banner Mascot Preview -->
+            <div class="relative mt-8 md:mt-0 z-10 flex justify-center">
+                <div onclick="triggerFullscreenCat('💖 抱抱巨萌貓咪！')" class="w-60 h-60 sm:w-72 sm:h-72 rounded-full bg-white p-4 shadow-2xl border-4 border-meow-pink relative animate-floatSlow flex items-center justify-center cursor-pointer hover:scale-105 transition-transform group">
+                    <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=600&q=80" 
+                         alt="Cute Cat Hero" class="w-full h-full object-cover rounded-full border-2 border-pink-200">
+                    <div class="absolute -bottom-2 -right-2 bg-meow-yellow text-meow-text font-black px-4 py-2 rounded-full border-2 border-white shadow-md text-xs rotate-6 group-hover:scale-110 transition-transform">
+                        🐾 點擊召喚全螢幕貓貓！
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cat Product Grid Section -->
+    <section id="market" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
+        <div class="flex flex-col md:flex-row items-center justify-between mb-8 gap-4 border-b-2 border-pink-100 pb-6">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-black text-meow-text font-cute flex items-center">
+                    <span>萌貓寶貝旗艦館</span>
+                    <span class="ml-2 text-xl">🐾</span>
+                </h2>
+                <p class="text-xs text-meow-textLight mt-1">按下「加入購物車」按鍵，體驗全螢幕 3D 貓咪爆發驚喜！</p>
+            </div>
+            <div class="flex items-center space-x-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0" id="categoryButtons"></div>
+        </div>
+
+        <!-- Product Cards Grid -->
+        <div id="catGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
+    </section>
+
+    <!-- Shopping Cart Drawer -->
+    <div id="cartDrawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white shadow-2xl transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col border-l-4 border-meow-pink">
+        <div class="p-6 bg-meow-pink/40 border-b-2 border-meow-pink flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-meow-deepPink flex items-center justify-center text-white text-xl shadow-sm">🛒</div>
+                <div>
+                    <h3 class="text-lg font-black text-meow-text font-cute">我的預約購物籃</h3>
+                    <p class="text-[11px] text-meow-textLight">預約屬於你的心儀毛球 🐾</p>
+                </div>
+            </div>
+            <button id="closeCartBtn" class="w-9 h-9 rounded-full bg-white hover:bg-pink-100 text-meow-text font-bold flex items-center justify-center border border-pink-200 shadow-sm">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div id="cartItemList" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+
+        <div class="p-6 bg-meow-cream border-t-2 border-pink-200 space-y-4">
+            <div class="flex justify-between text-base font-black border-t border-pink-200 pt-3 text-meow-text">
+                <span>領養預約總金額</span>
+                <span id="cartTotalPrice" class="text-xl font-black text-meow-deepPink font-cute">NT$ 0</span>
+            </div>
+            <button id="checkoutBtn" class="w-full py-4 rounded-full bg-gradient-to-r from-meow-hotpink to-meow-deepPink text-white font-black text-base shadow-lg hover:opacity-95 transition-all flex items-center justify-center space-x-2">
+                <span>喵！確認領養預約</span>
+                <i class="fa-solid fa-heart"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- ULTRA-CUTE FULLSCREEN CAT MODAL EXPERIENCE                          -->
+    <!-- =================================================================== -->
+    <div id="fullScreenCatModal" class="fixed inset-0 z-50 hidden flex flex-col items-center justify-between p-4 sm:p-8 backdrop-blur-xl bg-pink-300/85 transition-all duration-500 overflow-hidden">
+        
+        <!-- Animated Pink Neon Background Canvas -->
+        <canvas id="fullscreenBgCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+        <!-- Top Header Bar -->
+        <div class="relative z-20 w-full max-w-5xl flex items-center justify-between">
+            <div class="flex items-center space-x-3 bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-full border-2 border-pink-300 shadow-lg animate-bounceSoft">
+                <span class="text-2xl animate-spin">💖</span>
+                <div>
+                    <h3 id="catModalTitle" class="text-base sm:text-lg font-black text-meow-deepPink font-cute">喵～ 巨大萌貓出現啦！</h3>
+                    <p id="catModalSubtitle" class="text-[11px] text-meow-textLight font-bold">點擊貓咪發出喵喵聲，用滑鼠調戲小耳朵！</p>
+                </div>
+            </div>
+
+            <!-- Close Fullscreen Modal Button -->
+            <button onclick="closeFullscreenCat()" class="w-12 h-12 rounded-full bg-white text-meow-deepPink font-black text-xl flex items-center justify-center border-4 border-pink-300 shadow-2xl hover:bg-meow-deepPink hover:text-white transition-all transform hover:scale-110 active:scale-95">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Center Fullscreen 3D/2D Interactive Canvas Cat -->
+        <div class="relative z-10 my-auto flex flex-col items-center justify-center w-full max-w-2xl">
+            
+            <!-- Floating Paw Indicator -->
+            <div id="catHappinessBadge" class="absolute -top-12 bg-white/90 px-4 py-1.5 rounded-full border-2 border-pink-300 text-xs font-black text-meow-deepPink shadow-md flex items-center space-x-1 animate-pulse">
+                <span>親密度：</span>
+                <span id="happinessScore">100%</span>
+                <span>💖</span>
+            </div>
+
+            <!-- Interactive Vector Canvas for Cat Face & Eyes -->
+            <div class="relative cursor-pointer group" onclick="petCat(event)">
+                <canvas id="interactiveCatCanvas" width="500" height="420" class="max-w-full h-auto drop-shadow-2xl"></canvas>
+            </div>
+
+            <p class="text-white font-black text-sm sm:text-base mt-2 drop-shadow-md text-center font-cute tracking-wide animate-pulse">
+                🐾 滑鼠移動眼珠會跟著轉動喔！點擊貓咪摸摸頭 🐾
+            </p>
+        </div>
+
+        <!-- Bottom Interactive Control Buttons (Feed, Play, Meow) -->
+        <div class="relative z-20 w-full max-w-xl bg-white/90 backdrop-blur-md rounded-5xl border-4 border-pink-300 p-4 sm:p-6 shadow-2xl flex flex-wrap items-center justify-around gap-3">
+            <button onclick="feedCatCan(event)" class="flex-1 min-w-[120px] py-3 px-4 rounded-full bg-gradient-to-r from-amber-300 to-amber-400 text-meow-text font-black text-xs sm:text-sm shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center space-x-1.5 border-2 border-white">
+                <span class="text-lg">🥫</span>
+                <span>餵食罐頭</span>
+            </button>
+
+            <button onclick="playToyStick(event)" class="flex-1 min-w-[120px] py-3 px-4 rounded-full bg-gradient-to-r from-pink-400 to-meow-deepPink text-white font-black text-xs sm:text-sm shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center space-x-1.5 border-2 border-white">
+                <span class="text-lg">🪄</span>
+                <span>搖逗貓棒</span>
+            </button>
+
+            <button onclick="triggerMeowSound(440, 0.4)" class="flex-1 min-w-[120px] py-3 px-4 rounded-full bg-gradient-to-r from-purple-300 to-purple-400 text-meow-text font-black text-xs sm:text-sm shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center space-x-1.5 border-2 border-white">
+                <span class="text-lg">🔊</span>
+                <span>叫貓喵喵</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 space-y-3 pointer-events-none"></div>
+
+    <script>
+        /* -------------------------------------------------------------
+           1. DATA STORE
+        ------------------------------------------------------------- */
+        const catBreeds = [
+            { id: 1, name: "英短藍貓 (大臉嘟嘟)", breed: "英國短毛貓", price: 28000, rating: 5.0, tag: "熱銷爆款", personality: "溫和好脾氣、包子臉大眼睛", image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=800&q=80" },
+            { id: 2, name: "仙女布偶貓 (泡芙)", breed: "布偶貓", price: 45000, rating: 4.9, tag: "溫和黏人", personality: "藍眼睛仙氣爆棚、極度親人", image: "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&w=800&q=80" },
+            { id: 3, name: "美短加白 (虎斑小將)", breed: "美國短毛貓", price: 22000, rating: 4.8, tag: "短毛好照顧", personality: "體質強健、活潑好動", image: "https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&w=800&q=80" },
+            { id: 4, name: "霸氣緬因貓 (獅子王)", breed: "緬因貓", price: 52000, rating: 5.0, tag: "蓬鬆巨無霸", personality: "溫柔的巨人、耳尖有纓毛", image: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=800&q=80" },
+            { id: 5, name: "曼赤肯短腿貓 (小短腿)", breed: "曼赤肯短腿貓", price: 38000, rating: 4.9, tag: "短腿萌神", personality: "跑起來像小跑車、好奇心強", image: "https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?auto=format&fit=crop&w=800&q=80" },
+            { id: 6, name: "暹羅王子 (可可豆)", breed: "暹羅貓", price: 18000, rating: 4.7, tag: "愛說話黏人", personality: "貓界小狗、極度愛跟主人聊天", image: "https://images.unsplash.com/photo-1513245543132-31f507417b26?auto=format&fit=crop&w=800&q=80" }
+        ];
+
+        let cart = [];
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let happiness = 100;
+        let audioCtx = null;
+
+        /* -------------------------------------------------------------
+           2. WEB AUDIO SYNTHESIZER (SYNTHESIZE MEOW SOUNDS)
+        ------------------------------------------------------------- */
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function triggerMeowSound(pitch = 450, duration = 0.35) {
+            try {
+                initAudio();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                
+                // Meow pitch curve (starts higher, drops slightly)
+                const now = audioCtx.currentTime;
+                osc.frequency.setValueAtTime(pitch, now);
+                osc.frequency.exponentialRampToValueAtTime(pitch * 1.3, now + duration * 0.3);
+                osc.frequency.exponentialRampToValueAtTime(pitch * 0.7, now + duration);
+
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + duration);
+            } catch (e) {
+                console.log("Audio pitch play preview constraint");
+            }
+        }
+
+        /* -------------------------------------------------------------
+           3. INTERACTIVE FULLSCREEN CAT CANVAS DRAWING ENGINE
+        ------------------------------------------------------------- */
+        let catCanvas, catCtx;
+        let catBlinkState = false;
+
+        function initCatCanvas() {
+            catCanvas = document.getElementById('interactiveCatCanvas');
+            if (!catCanvas) return;
+            catCtx = catCanvas.getContext('2d');
+
+            // Blink interval
+            setInterval(() => {
+                catBlinkState = true;
+                setTimeout(() => { catBlinkState = false; }, 150);
+            }, 3500);
+
+            requestAnimationFrame(renderCatCanvas);
+        }
+
+        function renderCatCanvas() {
+            if (!catCtx) return;
+            const w = catCanvas.width;
+            const h = catCanvas.height;
+            catCtx.clearRect(0, 0, w, h);
+
+            const centerX = w / 2;
+            const centerY = h / 2 + 20;
+
+            // 1. Draw Tail (Animated Wave)
+            const time = Date.now() * 0.003;
+            const tailAngle = Math.sin(time) * 20;
+            catCtx.save();
+            catCtx.translate(centerX + 140, centerY + 80);
+            catCtx.rotate((tailAngle * Math.PI) / 180);
+            catCtx.beginPath();
+            catCtx.moveTo(0, 0);
+            catCtx.quadraticCurveTo(60, -80, 40, -140);
+            catCtx.lineWidth = 28;
+            catCtx.strokeStyle = '#FF85B3';
+            catCtx.lineCap = 'round';
+            catCtx.stroke();
+            catCtx.restore();
+
+            // 2. Outer Cat Ears
+            // Left Ear
+            catCtx.beginPath();
+            catCtx.moveTo(centerX - 130, centerY - 80);
+            catCtx.lineTo(centerX - 180, centerY - 210);
+            catCtx.lineTo(centerX - 50, centerY - 150);
+            catCtx.fillStyle = '#FF85B3';
+            catCtx.fill();
+
+            // Left Inner Ear Pink
+            catCtx.beginPath();
+            catCtx.moveTo(centerX - 125, centerY - 90);
+            catCtx.lineTo(centerX - 165, centerY - 190);
+            catCtx.lineTo(centerX - 65, centerY - 145);
+            catCtx.fillStyle = '#FFD6E8';
+            catCtx.fill();
+
+            // Right Ear
+            catCtx.beginPath();
+            catCtx.moveTo(centerX + 130, centerY - 80);
+            catCtx.lineTo(centerX + 180, centerY - 210);
+            catCtx.lineTo(centerX + 50, centerY - 150);
+            catCtx.fillStyle = '#FF85B3';
+            catCtx.fill();
+
+            // Right Inner Ear Pink
+            catCtx.beginPath();
+            catCtx.moveTo(centerX + 125, centerY - 90);
+            catCtx.lineTo(centerX + 165, centerY - 190);
+            catCtx.lineTo(centerX + 65, centerY - 145);
+            catCtx.fillStyle = '#FFD6E8';
+            catCtx.fill();
+
+            // 3. Cat Head Main Base (Soft Cream Pink Round)
+            catCtx.beginPath();
+            catCtx.ellipse(centerX, centerY, 170, 140, 0, 0, Math.PI * 2);
+            catCtx.fillStyle = '#FFFFFF';
+            catCtx.fill();
+            catCtx.lineWidth = 8;
+            catCtx.strokeStyle = '#FFD6E8';
+            catCtx.stroke();
+
+            // 4. Blush Cheeks
+            catCtx.beginPath();
+            catCtx.ellipse(centerX - 100, centerY + 30, 25, 15, 0, 0, Math.PI * 2);
+            catCtx.ellipse(centerX + 100, centerY + 30, 25, 15, 0, 0, Math.PI * 2);
+            catCtx.fillStyle = 'rgba(255, 133, 179, 0.4)';
+            catCtx.fill();
+
+            // 5. Interactive Eyes (Pupil Follow Mouse)
+            const leftEyeX = centerX - 65;
+            const rightEyeX = centerX + 65;
+            const eyeY = centerY - 20;
+
+            if (catBlinkState) {
+                // Blink lines
+                catCtx.beginPath();
+                catCtx.arc(leftEyeX, eyeY, 25, 0.1 * Math.PI, 0.9 * Math.PI);
+                catCtx.arc(rightEyeX, eyeY, 25, 0.1 * Math.PI, 0.9 * Math.PI);
+                catCtx.lineWidth = 6;
+                catCtx.strokeStyle = '#4A3E3D';
+                catCtx.stroke();
+            } else {
+                // Eye Sclera Outer White
+                catCtx.beginPath();
+                catCtx.arc(leftEyeX, eyeY, 32, 0, Math.PI * 2);
+                catCtx.arc(rightEyeX, eyeY, 32, 0, Math.PI * 2);
+                catCtx.fillStyle = '#4A3E3D';
+                catCtx.fill();
+
+                // Calculate Pupil offset pointing to cursor
+                const rect = catCanvas.getBoundingClientRect();
+                const canvasMouseX = mouseX - rect.left;
+                const canvasMouseY = mouseY - rect.top;
+
+                const dxL = canvasMouseX - leftEyeX;
+                const dyL = canvasMouseY - eyeY;
+                const distL = Math.min(Math.hypot(dxL, dyL), 12);
+                const angleL = Math.atan2(dyL, dxL);
+
+                const dxR = canvasMouseX - rightEyeX;
+                const dyR = canvasMouseY - eyeY;
+                const distR = Math.min(Math.hypot(dxR, dyR), 12);
+                const angleR = Math.atan2(dyR, dxR);
+
+                const pupilLX = leftEyeX + Math.cos(angleL) * distL;
+                const pupilLY = eyeY + Math.sin(angleL) * distL;
+
+                const pupilRX = rightEyeX + Math.cos(angleR) * distR;
+                const pupilRY = eyeY + Math.sin(angleR) * distR;
+
+                // Shiny Pupil Sparkles
+                catCtx.beginPath();
+                catCtx.arc(pupilLX - 6, pupilLY - 6, 12, 0, Math.PI * 2);
+                catCtx.arc(pupilRX - 6, pupilRY - 6, 12, 0, Math.PI * 2);
+                catCtx.fillStyle = '#FFFFFF';
+                catCtx.fill();
+            }
+
+            // 6. Cute Nose
+            catCtx.beginPath();
+            catCtx.moveTo(centerX - 12, centerY + 20);
+            catCtx.lineTo(centerX + 12, centerY + 20);
+            catCtx.lineTo(centerX, centerY + 30);
+            catCtx.closePath();
+            catCtx.fillStyle = '#FF5388';
+            catCtx.fill();
+
+            // 7. Cat Mouth (W shape)
+            catCtx.beginPath();
+            catCtx.arc(centerX - 12, centerY + 34, 12, 0, Math.PI * 0.85);
+            catCtx.arc(centerX + 12, centerY + 34, 12, 0.15 * Math.PI, Math.PI);
+            catCtx.lineWidth = 5;
+            catCtx.strokeStyle = '#4A3E3D';
+            catCtx.stroke();
+
+            // 8. Whiskers
+            catCtx.lineWidth = 3;
+            catCtx.strokeStyle = '#FFD6E8';
+            // Left Whiskers
+            catCtx.beginPath();
+            catCtx.moveTo(centerX - 110, centerY + 10); catCtx.lineTo(centerX - 190, centerY - 5);
+            catCtx.moveTo(centerX - 110, centerY + 25); catCtx.lineTo(centerX - 195, centerY + 25);
+            catCtx.stroke();
+            // Right Whiskers
+            catCtx.beginPath();
+            catCtx.moveTo(centerX + 110, centerY + 10); catCtx.lineTo(centerX + 190, centerY - 5);
+            catCtx.moveTo(centerX + 110, centerY + 25); catCtx.lineTo(centerX + 195, centerY + 25);
+            catCtx.stroke();
+
+            // 9. Floating Paws at the bottom of the canvas
+            catCtx.beginPath();
+            catCtx.arc(centerX - 80, centerY + 135, 30, 0, Math.PI * 2);
+            catCtx.arc(centerX + 80, centerY + 135, 30, 0, Math.PI * 2);
+            catCtx.fillStyle = '#FFFFFF';
+            catCtx.fill();
+            catCtx.lineWidth = 4;
+            catCtx.strokeStyle = '#FFD6E8';
+            catCtx.stroke();
+
+            // Pink Paw Beans
+            catCtx.beginPath();
+            catCtx.arc(centerX - 80, centerY + 135, 12, 0, Math.PI * 2);
+            catCtx.arc(centerX + 80, centerY + 135, 12, 0, Math.PI * 2);
+            catCtx.fillStyle = '#FF85B3';
+            catCtx.fill();
+
+            requestAnimationFrame(renderCatCanvas);
+        }
+
+        /* -------------------------------------------------------------
+           4. FULLSCREEN CAT MODAL CONTROLLER & INTERACTIONS
+        ------------------------------------------------------------- */
+        function triggerFullscreenCat(title = '喵～ 巨萌貓咪出現啦！', breedName = '') {
+            const modal = document.getElementById('fullScreenCatModal');
+            if (!modal) return;
+
+            document.getElementById('catModalTitle').textContent = breedName ? `喵！已將 ${breedName} 加入購物車！` : title;
+            modal.classList.remove('hidden');
+
+            // Play celebratory sound
+            triggerMeowSound(520, 0.45);
+
+            // Trigger Confetti Blast
+            confetti({
+                particleCount: 100,
+                spread: 100,
+                origin: { y: 0.5 },
+                colors: ['#FF85B3', '#FFD6E8', '#FFE8A3', '#FF5388', '#E8D5FF']
+            });
+
+            // Add item to shopping cart automatically if called from product
+            if (breedName) {
+                const cat = catBreeds.find(c => c.name === breedName);
+                if (cat) {
+                    const existing = cart.find(i => i.id === cat.id);
+                    if (existing) existing.qty += 1;
+                    else cart.push({ ...cat, qty: 1 });
+                    updateCartUI();
+                }
+            }
+        }
+
+        function closeFullscreenCat() {
+            document.getElementById('fullScreenCatModal').classList.add('hidden');
+        }
+
+        function petCat(e) {
+            triggerMeowSound(580, 0.3);
+            triggerPawParticleBurst(e.clientX, e.clientY);
+            happiness = Math.min(100, happiness + 5);
+            document.getElementById('happinessScore').textContent = `${happiness}%`;
+            showToast("摸摸貓頭～ 貓咪舒服得發出咕嚕聲 💕");
+        }
+
+        function feedCatCan(e) {
+            triggerMeowSound(620, 0.4);
+            triggerPawParticleBurst(e.clientX, e.clientY);
+            confetti({ particleCount: 30, spread: 50, origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight } });
+            showToast("餵食罐頭 🥫 貓咪開心得大口吃光光！");
+        }
+
+        function playToyStick(e) {
+            triggerMeowSound(480, 0.35);
+            triggerPawParticleBurst(e.clientX, e.clientY);
+            showToast("搖動逗貓棒 🪄 貓咪眼睛發亮跳躍！");
+        }
+
+        /* -------------------------------------------------------------
+           5. MOUSE TRAIL & PARTICLE BURST LOGIC
+        ------------------------------------------------------------- */
+        function triggerPawParticleBurst(x, y) {
+            const emojis = ['🐾', '💕', '✨', '🌸', '💖', '🐟'];
+            for (let i = 0; i < 12; i++) {
+                const elem = document.createElement('div');
+                elem.className = 'particle-emoji';
+                elem.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+
+                const angle = (Math.PI * 2 / 12) * i + (Math.random() * 0.4 - 0.2);
+                const distance = 70 + Math.random() * 70;
+                elem.style.left = `${x}px`;
+                elem.style.top = `${y}px`;
+                elem.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+                elem.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
+                elem.style.setProperty('--rot', `${Math.random() * 360 - 180}deg`);
+
+                document.body.appendChild(elem);
+                setTimeout(() => elem.remove(), 850);
+            }
+        }
+
+        function initCursorTrail() {
+            const canvas = document.getElementById('cursorCanvas');
+            const ctx = canvas.getContext('2d');
+            let points = [];
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+
+                if (Math.random() > 0.35) {
+                    points.push({ x: e.clientX, y: e.clientY, alpha: 1, size: Math.random() * 8 + 12 });
+                }
+            });
+
+            function renderTrail() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < points.length; i++) {
+                    const p = points[i];
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.font = `${p.size}px sans-serif`;
+                    ctx.fillText('🐾', p.x, p.y);
+                    ctx.restore();
+                    p.alpha -= 0.025;
+                }
+                points = points.filter(p => p.alpha > 0);
+                requestAnimationFrame(renderTrail);
+            }
+            renderTrail();
+        }
+
+        /* -------------------------------------------------------------
+           6. RENDER SHOP UI & CARTS
+        ------------------------------------------------------------- */
+        function renderCatGrid() {
+            const grid = document.getElementById('catGrid');
+            grid.innerHTML = catBreeds.map(cat => `
+                <div class="cat-ears-container group bg-white rounded-4xl p-4 border-2 border-pink-200 shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col justify-between relative hover:-translate-y-2">
+                    <div class="relative rounded-3xl overflow-hidden h-56 bg-pink-50 mb-4">
+                        <img src="${cat.image}" alt="${cat.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md border border-pink-300 text-meow-deepPink font-black text-[11px] px-3 py-1 rounded-full shadow-sm">
+                            🌸 ${cat.tag}
+                        </span>
+                    </div>
+
+                    <div class="space-y-2 flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-bold text-meow-textLight bg-pink-100 px-2.5 py-0.5 rounded-full">${cat.breed}</span>
+                                <div class="flex items-center text-amber-400 text-xs font-black">
+                                    <i class="fa-solid fa-star mr-1"></i> ${cat.rating}
+                                </div>
+                            </div>
+                            <h3 class="text-base font-black text-meow-text font-cute mt-1">${cat.name}</h3>
+                            <p class="text-xs text-meow-textLight line-clamp-2 mt-1">${cat.personality}</p>
+                        </div>
+
+                        <div class="pt-3 border-t border-pink-100 flex items-center justify-between">
+                            <div>
+                                <span class="text-[10px] text-meow-textLight block">預約領養價</span>
+                                <span class="text-lg font-black text-meow-deepPink font-cute">NT$ ${cat.price.toLocaleString()}</span>
+                            </div>
+
+                            <!-- Cart Trigger Button (Mandatory text: 加入購物車) -->
+                            <button onclick="triggerFullscreenCat('🐾 已加入購物車！', '${cat.name}')" class="btn-add-cart text-white font-black text-xs px-4 py-2.5 rounded-full flex items-center space-x-1.5 shadow-md">
+                                <i class="fa-solid fa-paw text-sm"></i>
+                                <span>加入購物車</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateCartUI() {
+            const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            document.getElementById('cartCountBadge').textContent = totalCount;
+            document.getElementById('cartTotalPrice').textContent = `NT$ ${totalPrice.toLocaleString()}`;
+
+            const list = document.getElementById('cartItemList');
+            if (cart.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-16 text-meow-textLight space-y-3">
+                        <div class="text-5xl">🐾</div>
+                        <p class="font-bold font-cute">購物籃空空如也喵～</p>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = cart.map(item => `
+                    <div class="flex items-center space-x-3 bg-pink-50/60 p-3 rounded-3xl border border-pink-200">
+                        <img src="${item.image}" class="w-16 h-16 rounded-2xl object-cover border border-pink-300">
+                        <div class="flex-1">
+                            <h4 class="font-black text-xs text-meow-text font-cute">${item.name}</h4>
+                            <p class="text-xs text-meow-deepPink font-bold mt-0.5">NT$ ${item.price.toLocaleString()}</p>
+                        </div>
+                        <span class="text-xs font-bold font-mono px-2">x${item.qty}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'cute-glass text-xs font-bold text-meow-text px-5 py-3 rounded-full border-2 border-pink-300 shadow-xl flex items-center space-x-2 transition-all transform translate-y-4 opacity-0';
+            toast.innerHTML = `<span>🐾</span><span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.remove('translate-y-4', 'opacity-0'), 50);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 2800);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCatGrid();
+            initCursorTrail();
+            initCatCanvas();
+
+            // Cart drawer buttons
+            const cartDrawer = document.getElementById('cartDrawer');
+            document.getElementById('openCartBtn').addEventListener('click', () => cartDrawer.classList.remove('translate-x-full'));
+            document.getElementById('closeCartBtn').addEventListener('click', () => cartDrawer.classList.add('translate-x-full'));
+            document.getElementById('checkoutBtn').addEventListener('click', () => {
+                triggerFullscreenCat('🎉 預約成功！全螢幕喵喵慶祝中！');
+                cart = [];
+                updateCartUI();
+                cartDrawer.classList.add('translate-x-full');
+            });
+        });
+    </script>
+</body>
+</html>
